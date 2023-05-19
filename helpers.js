@@ -42,15 +42,27 @@ class serializeData {
 class deserializeData{ 
 
   deserializer(buffer){
-    if (String.fromCharCode(buffer[0])=== '+'){
-      return this.simpleString(buffer)
-    }else{
-      console.log("Invalid",buffer.toString("binary"))
+    switch (String.fromCharCode(buffer[0])) {
+      case '+':
+        return this.simpleString(buffer)
+      case ':':
+        return this.integer(buffer)
+      case '-':
+        return this.error(buffer)
     }
   }
   simpleString(buffer){
     let crlfPos = buffer.indexOf(CRLF);
     return buffer.toString().substring(1,crlfPos);
   }
+  integer(buffer){
+    let crlfPos = buffer.indexOf(CRLF);
+    return parseInt(buffer.toString().substring(1,crlfPos))
+  }
+  error(buffer){
+    let crlfPos = buffer.indexOf(CRLF);
+    return buffer.toString().substring(0,crlfPos)
+  }
+
 }
 module.exports = {serializeData, deserializeData};
