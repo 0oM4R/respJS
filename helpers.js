@@ -57,15 +57,15 @@ class deserializeData{
   }
   simpleString(buffer){
     let crlfPos = buffer.indexOf(CRLF);
-    return buffer.toString().substring(1,crlfPos);
+    return { value: buffer.toString().substring(1,crlfPos),end: crlfPos+2};
   }
   integer(buffer){
     let crlfPos = buffer.indexOf(CRLF);
-    return parseInt(buffer.toString().substring(1,crlfPos))
+    return {value:parseInt(buffer.toString().substring(1,crlfPos)), end: crlfPos+2};
   }
   error(buffer){
     let crlfPos = buffer.indexOf(CRLF);
-    return buffer.toString().substring(0,crlfPos)
+    return {value: buffer.toString().substring(0,crlfPos), end: crlfPos+2}
   }
   bulkStrings(buffer){
     let crlfPos = buffer.indexOf(CRLF);
@@ -76,10 +76,14 @@ class deserializeData{
     let crlfPos = buffer.indexOf(CRLF);
     let arraySize = parseInt(buffer.toString().substring(1,crlfPos))
     let arr = [];
-    for (let index = 4; index < buffer.length; index++) {
-      console.log(String.fromCharCode(buffer[index]),index)
+    buffer = buffer.slice(4)
+    while(arraySize){
+      let {value,end}= this.deserializer(buffer)
+      arr.push(value)
+      arraySize--;
+      buffer = buffer.slice(end)
     }
-    return 
+    return arr
   }
 }
 module.exports = {serializeData, deserializeData};
