@@ -49,6 +49,8 @@ class deserializeData{
         return this.integer(buffer)
       case '-':
         return this.error(buffer)
+      case '$':
+        return this.bulkStrings(buffer)
     }
   }
   simpleString(buffer){
@@ -63,6 +65,10 @@ class deserializeData{
     let crlfPos = buffer.indexOf(CRLF);
     return buffer.toString().substring(0,crlfPos)
   }
-
+  bulkStrings(buffer){
+    let crlfPos = buffer.indexOf(CRLF);
+    let strSize = parseInt(buffer.toString().substring(1,crlfPos))
+    return buffer.toString().substring(4,4+strSize);
+  }
 }
 module.exports = {serializeData, deserializeData};
