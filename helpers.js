@@ -51,6 +51,8 @@ class deserializeData{
         return this.error(buffer)
       case '$':
         return this.bulkStrings(buffer)
+      case '*':
+        return this.array(buffer)
     }
   }
   simpleString(buffer){
@@ -69,6 +71,15 @@ class deserializeData{
     let crlfPos = buffer.indexOf(CRLF);
     let strSize = parseInt(buffer.toString().substring(1,crlfPos))
     return buffer.toString().substring(4,4+strSize);
+  }
+  array(buffer){
+    let crlfPos = buffer.indexOf(CRLF);
+    let arraySize = parseInt(buffer.toString().substring(1,crlfPos))
+    let arr = [];
+    for (let index = 4; index < buffer.length; index++) {
+      console.log(String.fromCharCode(buffer[index]),index)
+    }
+    return 
   }
 }
 module.exports = {serializeData, deserializeData};
