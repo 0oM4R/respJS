@@ -70,13 +70,13 @@ class deserializeData{
   bulkStrings(buffer){
     let crlfPos = buffer.indexOf(CRLF);
     let strSize = parseInt(buffer.toString().substring(1,crlfPos))
-    return buffer.toString().substring(4,4+strSize);
+    return {value: buffer.toString().substring(crlfPos+2 ,crlfPos+2+strSize), end :crlfPos+strSize+4};
   }
   array(buffer){
     let crlfPos = buffer.indexOf(CRLF);
     let arraySize = parseInt(buffer.toString().substring(1,crlfPos))
     let arr = [];
-    buffer = buffer.slice(4)
+    buffer = buffer.slice(crlfPos + 2);
     while(arraySize){
       let {value,end}= this.deserializer(buffer)
       arr.push(value)
