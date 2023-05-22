@@ -1,4 +1,4 @@
-const CRLF = "\r\n"
+const CRLF = "\r\n";
 class serializeData {
   simpleString(str) {
     return `+${str}\r\n`;
@@ -28,10 +28,10 @@ class serializeData {
           }
           break;
         case "number":
-          serializedArray += this.integer(arrayData[i])
+          serializedArray += this.integer(arrayData[i]);
           break;
         case "object":
-          serializedArray += this.array(arrayData[i])
+          serializedArray += this.array(arrayData[i]);
           break;
       }
     }
@@ -39,51 +39,87 @@ class serializeData {
   }
 }
 
-class deserializeData{ 
-
-  deserializer(buffer){
+class deserializeData {
+  deserializer(buffer) {
     switch (String.fromCharCode(buffer[0])) {
-      case '+':
-        return this.simpleString(buffer)
-      case ':':
-        return this.integer(buffer)
-      case '-':
-        return this.error(buffer)
-      case '$':
-        return this.bulkStrings(buffer)
-      case '*':
-        return this.array(buffer)
+      case "+":
+        return this.simpleString(buffer);
+      case ":":
+        return this.integer(buffer);
+      case "-":
+        return this.error(buffer);
+      case "$":
+        return this.bulkStrings(buffer);
+      case "*":
+        return this.array(buffer);
     }
   }
-  simpleString(buffer){
+  simpleString(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    return { value: buffer.toString().substring(1,crlfPos),end: crlfPos+2};
+    return { value: buffer.toString().substring(1, crlfPos), end: crlfPos + 2 };
   }
-  integer(buffer){
+  integer(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    return {value:parseInt(buffer.toString().substring(1,crlfPos)), end: crlfPos+2};
+    return {
+      value: parseInt(buffer.toString().substring(1, crlfPos)),
+      end: crlfPos + 2,
+    };
   }
-  error(buffer){
+  error(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    return {value: buffer.toString().substring(0,crlfPos), end: crlfPos+2}
+    return { value: buffer.toString().substring(0, crlfPos), end: crlfPos + 2 };
   }
-  bulkStrings(buffer){
+  bulkStrings(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    let strSize = parseInt(buffer.toString().substring(1,crlfPos))
-    return {value: buffer.toString().substring(crlfPos+2 ,crlfPos+2+strSize), end :crlfPos+strSize+4};
+    let strSize = parseInt(buffer.toString().substring(1, crlfPos));
+    if (strSize < 0) return { value: null, end: crlfPos + 2 };
+    return {
+      value: buffer.toString().substring(crlfPos + 2, crlfPos + 2 + strSize),
+      end: crlfPos + strSize + 4,
+    };
   }
-  array(buffer){
+  array(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    let arraySize = parseInt(buffer.toString().substring(1,crlfPos))
+    let arraySize = parseInt(buffer.toString().substring(1, crlfPos));
     let arr = [];
     buffer = buffer.slice(crlfPos + 2);
-    while(arraySize){
-      let {value,end}= this.deserializer(buffer)
-      arr.push(value)
+    if (arraySize < 0) return { value: [null], end: crlfPos + 2 };
+    while (arraySize) {
+      let { value, end } = this.deserializer(buffer);
+      arr.push(value);
       arraySize--;
-      buffer = buffer.slice(end)
+      buffer = buffer.slice(end);
     }
     return { value: arr, end: crlfPos + 2 + buffer.length };
   }
 }
-module.exports = {serializeData, deserializeData};
+
+class controller extends serializeData {
+  async commandsParser(value) {
+    if (Array.isArray(value)) return await this.router(value);
+    else return this.router([value]);
+  }
+  async router(value) {
+    switch (value[0]) {
+      case "myPing":
+        return this.simpleString("PONG");
+      case "testurl":
+        if (!value[1])
+          return this.error(
+            "please type the url, EX.'testurl https://google.com' "
+          );
+        else return await this.testUrl(value[1]);
+      default:
+        return this.error("invalid command");
+    }
+  }
+  async testUrl(value) {
+    try {
+      const response = await fetch(value);
+      if (response.ok) return this.simpleString("true");
+    } catch (error) {
+      return this.simpleString("false");
+    }
+  }
+}
+module.exports = { serializeData, deserializeData, controller };
