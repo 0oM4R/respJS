@@ -10,7 +10,7 @@ const server = net.createServer((socket) => {
  
   console.log("Connection from", socket.remoteAddress, "port", socket.remotePort)
   socket.on("data", (buffer) => {
-    console.log(de.deserializer(buffer))
+    console.log(de.deserializer(buffer).value)
     socket.write('+PONG\r\n')
   })
   socket.on("end", () => {

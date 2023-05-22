@@ -83,7 +83,7 @@ class deserializeData{
       arraySize--;
       buffer = buffer.slice(end)
     }
-    return arr
+    return { value: arr, end: crlfPos + 2 + buffer.length };
   }
 }
 module.exports = {serializeData, deserializeData};
