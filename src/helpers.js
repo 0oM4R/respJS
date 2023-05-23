@@ -5,7 +5,7 @@ class serializeData {
     return `+${str}\r\n`;
   }
   error(message) {
-    return `-ERR ${message}\r\n`;
+    return `-${message}\r\n`;
   }
   integer(value) {
     return `:${value}\r\n`;
@@ -18,14 +18,22 @@ class serializeData {
     }
   }
   array(arrayData) {
+    if(!arrayData) return '*-1\r\n'
     let serializedArray = `*${arrayData.length}\r\n`;
+
     for (let i = 0; i < arrayData.length; i++) {
+      if(arrayData[i] === null || arrayData[i] === undefined){
+         serializedArray += this.bulkStrings(null);
+         continue;
+      }
       switch (typeof arrayData[i]) {
         case "string":
-          if (arrayData[i].includes("\n") || arrayData[i].includes("\r")) {
+          if (arrayData[i][0] === '+') {
+            serializedArray += this.simpleString(arrayData[i].slice(1));
+          } else if (arrayData[i][0] === '-'){
+            serializedArray += this.error(arrayData[i].slice(1))
+          } else{
             serializedArray += this.bulkStrings(arrayData[i]);
-          } else {
-            serializedArray += this.simpleString(arrayData[i]);
           }
           break;
         case "number":
