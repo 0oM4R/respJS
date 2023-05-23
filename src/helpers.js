@@ -1,6 +1,7 @@
 const CRLF = "\r\n";
 class serializeData {
   simpleString(str) {
+    if(str.indexOf('\n') !== -1) throw new Error("Invalid simple string")
     return `+${str}\r\n`;
   }
   error(message) {
