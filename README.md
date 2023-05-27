@@ -16,6 +16,10 @@ You can clone the repository and run the server with the following command:
 - `yarn` to install some small dependencies
 - `yarn start` to start the server
 
+## Testing
+
+You can run the tests using `npm test`
+
 ## Usage
 
 ### Using redis-cli
@@ -60,3 +64,4 @@ The main part of the code creates a TCP server using net.createServer(). It list
 You can start the server by running the script, and it will listen on port 6379. Clients can connect to the server and send Redis-like commands, which will be processed and responded to accordingly.
 
 Note: This code assumes the presence of additional dependencies and modules, such as fetch for the "testurl" command. Make sure to install and include any required dependencies before running the code.
+
