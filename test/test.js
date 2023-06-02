@@ -188,11 +188,11 @@ describe("Deserialization", () => {
     it("Nested arrays", () => {
       assert.deepEqual(
         DeserializeData.array(
-          "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+tello\r\n-World\r\n"
+          "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n"
         ).value,
         [
           [1, 2, 3],
-          ["+Hello", "-World"],
+          ["Hello", "World"],
         ]
       );
     });

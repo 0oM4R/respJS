@@ -116,7 +116,7 @@ class deserializeData {
       arraySize--;
       buffer = buffer.slice(end);
     }
-    return { value: arr, end: crlfPos + 2 + buffer.length };
+    return { value: arr, end: buffer.length - 4};
   }
 }
 
