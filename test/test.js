@@ -154,41 +154,47 @@ describe("Deserialization", () => {
   });
   describe("Array", () => {
     it('Empty array, should return "*0\\r\\n"', () => {
-      assert.deepEqual(DeserializeData.array("*0\r\n").value, []);
+      assert.deepEqual(DeserializeData.array(Buffer.from("*0\r\n").value, ));
     });
     it("Hello world, as bulk string", () => {
       assert.deepEqual(
-        DeserializeData.array("*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n").value,
+        DeserializeData.array(
+          Buffer.from("*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n")
+        ).value,
         ["hello", "world"]
       );
     });
     it("Hello world, as simple string", () => {
-      assert.deepEqual(DeserializeData.array("*2\r\n+hello\r\n+world\r\n").value, [
-        "hello",
-        "world",
-      ]);
+      assert.deepEqual(
+        DeserializeData.array(Buffer.from("*2\r\n+hello\r\n+world\r\n")).value,
+        ["hello", "world"]
+      );
     });
     it("Array of integers", () => {
       assert.deepEqual(
-        DeserializeData.array("*3\r\n:1\r\n:2\r\n:3\r\n").value,
+        DeserializeData.array(Buffer.from("*3\r\n:1\r\n:2\r\n:3\r\n")).value,
         [1, 2, 3]
       );
     });
     it("Mixed types", () => {
       assert.deepEqual(
         DeserializeData.array(
-          "*6\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n+world\r\n"
+          Buffer.from("*6\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n+world\r\n")
         ).value,
         [1, 2, 3, 4, "hello", "world"]
       );
     });
     it("Null array", () => {
-      assert.deepEqual(DeserializeData.array("*-1\r\n").value, [null]);
+      assert.deepEqual(DeserializeData.array(Buffer.from("*-1\r\n")).value, [
+        null,
+      ]);
     });
     it("Nested arrays", () => {
       assert.deepEqual(
         DeserializeData.array(
-          "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n"
+          Buffer.from(
+            "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n"
+          )
         ).value,
         [
           [1, 2, 3],
@@ -198,9 +204,9 @@ describe("Deserialization", () => {
     });
     it("Null element inside array", () => {
       assert.deepEqual(
-        DeserializeData.array("*3\r\n$5\r\nhello\r\n$-1\r\n$5\r\nworld\r\n")
-                              
-          .value,
+        DeserializeData.array(
+          Buffer.from("*3\r\n$5\r\nhello\r\n$-1\r\n$5\r\nworld\r\n")
+        ).value,
         ["hello", null, "world"]
       );
     });

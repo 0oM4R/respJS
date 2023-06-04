@@ -62,21 +62,6 @@ class deserializeData {
       case "*":
         return this.array(buffer);
     }
-    // if the stream in not buffered
-    switch (buffer[0]) {
-      case "+":
-        return this.simpleString(buffer);
-      case ":":
-        return this.integer(buffer);
-      case "-":
-        return this.error(buffer);
-      case "$":
-        return this.bulkStrings(buffer);
-      case "*":
-        return this.array(buffer);
-    }
-
-
   }
   simpleString(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
