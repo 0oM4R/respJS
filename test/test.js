@@ -7,12 +7,13 @@ const {
 } = require("../src/helpers");
 const { ServerResponse } = require("http");
 const SerializeData = new serializeData();
-describe("serializeData", () => {
+const DeserializeData = new deserializeData();
+describe("Serialize data", () => {
   describe("String", () => {
-    it('should return "+PONG\\r\\n" that is PONG in RESP protocol', () => {
+    it("PONG", () => {
       assert.equal(SerializeData.simpleString("PONG"), "+PONG\r\n");
     });
-    it("should throw an error", () => {
+    it("Error: Invalid simple string", () => {
       expect(() => SerializeData.simpleString("PO\nNG")).to.throw(
         Error,
         "Invalid simple string"
@@ -20,7 +21,7 @@ describe("serializeData", () => {
     });
   });
   describe("Error", () => {
-    it('Simple error message', () => {
+    it("Simple error message", () => {
       assert.equal(
         SerializeData.error("ERR errorMessage"),
         "-ERR errorMessage\r\n"
@@ -34,52 +35,180 @@ describe("serializeData", () => {
     });
   });
   describe("Integers", () => {
-    it('Positive integer', () => {
+    it("Positive integer", () => {
       assert.equal(SerializeData.integer(5), ":5\r\n");
     });
     it('Negative integer"', () => {
       assert.equal(SerializeData.integer(-2), ":-2\r\n");
     });
-    it('Float', () => {
+    it("Float", () => {
       assert.equal(SerializeData.integer(2.5), ":2.5\r\n");
     });
   });
   describe("Bulk string", () => {
     it('Hello"', () => {
-      assert.equal(SerializeData.bulkStrings('hello'),'$5\r\nhello\r\n')
-    })
-    it('Empty string', ()=>{
-      assert.equal(SerializeData.bulkStrings(''),"$0\r\n\r\n")
-    })
-    it('Null value', ()=>{
-      assert.equal(SerializeData.bulkStrings(null), "$-1\r\n")
-    })
-  })
+      assert.equal(SerializeData.bulkStrings("hello"), "$5\r\nhello\r\n");
+    });
+    it("Empty string", () => {
+      assert.equal(SerializeData.bulkStrings(""), "$0\r\n\r\n");
+    });
+    it("Null value", () => {
+      assert.equal(SerializeData.bulkStrings(null), "$-1\r\n");
+    });
+  });
   describe("Array", () => {
     it('Empty array, should return "*0\\r\\n"', () => {
-      assert.equal(SerializeData.array([]),"*0\r\n")
-    })
-    it('Hello world, as bulk string', () => {
-      assert.equal(SerializeData.array(["hello","world"]),"*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n")
-    })
-    it('Hello world, as simple string', () => {
-      assert.equal(SerializeData.array(["+hello","+world"]), "*2\r\n+hello\r\n+world\r\n")
-    })
-    it('Array of integers', () => {
-      assert.equal(SerializeData.array([1,2,3]),"*3\r\n:1\r\n:2\r\n:3\r\n")
-    })
-    it("Mixed types",()=>{
-      assert.equal(SerializeData.array([1,2,3,4,"hello","+world"]),"*6\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n+world\r\n")
-    })
+      assert.equal(SerializeData.array([]), "*0\r\n");
+    });
+    it("Hello world, as bulk string", () => {
+      assert.equal(
+        SerializeData.array(["hello", "world"]),
+        "*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n"
+      );
+    });
+    it("Hello world, as simple string", () => {
+      assert.equal(
+        SerializeData.array(["+hello", "+world"]),
+        "*2\r\n+hello\r\n+world\r\n"
+      );
+    });
+    it("Array of integers", () => {
+      assert.equal(SerializeData.array([1, 2, 3]), "*3\r\n:1\r\n:2\r\n:3\r\n");
+    });
+    it("Mixed types", () => {
+      assert.equal(
+        SerializeData.array([1, 2, 3, 4, "hello", "+world"]),
+        "*6\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n+world\r\n"
+      );
+    });
     it("Null array", () => {
-      assert.equal(SerializeData.array(),"*-1\r\n")
-    })
+      assert.equal(SerializeData.array(), "*-1\r\n");
+    });
     it("Nested arrays", () => {
-      assert.equal(SerializeData.array([[1,2,3],["+Hello","-World"]]),"*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n")
-    })
+      assert.equal(
+        SerializeData.array([
+          [1, 2, 3],
+          ["+Hello", "-World"],
+        ]),
+        "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n"
+      );
+    });
     it("Null element inside array", () => {
-      assert.equal(SerializeData.array(["hello", null ,"world"]),"*3\r\n$5\r\nhello\r\n$-1\r\n$5\r\nworld\r\n")
-    })
-
-  })
+      assert.equal(
+        SerializeData.array(["hello", null, "world"]),
+        "*3\r\n$5\r\nhello\r\n$-1\r\n$5\r\nworld\r\n"
+      );
+    });
+  });
+});
+describe("Deserialization", () => {
+  describe("String", () => {
+    it("PONG", () => {
+      assert.equal(DeserializeData.simpleString("+PONG\r\n").value, "PONG");
+    });
+    it("Invalid simple string", () => {
+      expect(() => DeserializeData.simpleString("PO\nNG\r\n").value).to.throw(
+        Error,
+        "Invalid simple string"
+      );
+    });
+  });
+  describe("Error", () => {
+    it("Simple error message", () => {
+      assert.equal(
+        DeserializeData.error("-ERR errorMessage\r\n").value,
+        "ERR errorMessage"
+      );
+    });
+  });
+  describe("Integer", () => {
+    it("Not a simple string message", () => {
+      assert.equal(
+        DeserializeData.error("-ERR error\nMessage\r\n").value,
+        "ERR error\nMessage"
+      );
+    });
+    it("Positive integer", () => {
+      assert.equal(DeserializeData.integer(":5\r\n").value, 5);
+    });
+    it('Negative integer"', () => {
+      assert.equal(DeserializeData.integer(":-2\r\n").value, -2);
+    });
+    it("Float", () => {
+      assert.equal(DeserializeData.integer(":2.5\r\n").value, 2.5);
+    });
+  });
+  describe("Bulk string", () => {
+    it('Hello"', () => {
+      assert.equal(
+        DeserializeData.bulkStrings("$5\r\nhello\r\n").value,
+        "hello"
+      );
+    });
+    it("Empty string", () => {
+      assert.equal(DeserializeData.bulkStrings("$0\r\n\r\n").value, "");
+    });
+    it("Null value", () => {
+      assert.equal(DeserializeData.bulkStrings("$-1\r\n").value, null);
+    });
+  });
+  describe("Array", () => {
+    it('Empty array, should return "*0\\r\\n"', () => {
+      assert.deepEqual(DeserializeData.array(Buffer.from("*0\r\n")).value, []);
+    });
+    it("Hello world, as bulk string", () => {
+      assert.deepEqual(
+        DeserializeData.array(
+          Buffer.from("*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n")
+        ).value,
+        ["hello", "world"]
+      );
+    });
+    it("Hello world, as simple string", () => {
+      assert.deepEqual(
+        DeserializeData.array(Buffer.from("*2\r\n+hello\r\n+world\r\n")).value,
+        ["hello", "world"]
+      );
+    });
+    it("Array of integers", () => {
+      assert.deepEqual(
+        DeserializeData.array(Buffer.from("*3\r\n:1\r\n:2\r\n:3\r\n")).value,
+        [1, 2, 3]
+      );
+    });
+    it("Mixed types", () => {
+      assert.deepEqual(
+        DeserializeData.array(
+          Buffer.from("*6\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n+world\r\n")
+        ).value,
+        [1, 2, 3, 4, "hello", "world"]
+      );
+    });
+    it("Null array", () => {
+      assert.deepEqual(DeserializeData.array(Buffer.from("*-1\r\n")).value, [
+        null,
+      ]);
+    });
+    it("Nested arrays", () => {
+      assert.deepEqual(
+        DeserializeData.array(
+          Buffer.from(
+            "*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n+Hello\r\n-World\r\n"
+          )
+        ).value,
+        [
+          [1, 2, 3],
+          ["Hello", "World"],
+        ]
+      );
+    });
+    it("Null element inside array", () => {
+      assert.deepEqual(
+        DeserializeData.array(
+          Buffer.from("*3\r\n$5\r\nhello\r\n$-1\r\n$5\r\nworld\r\n")
+        ).value,
+        ["hello", null, "world"]
+      );
+    });
+  });
 });

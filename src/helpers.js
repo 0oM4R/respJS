@@ -65,18 +65,20 @@ class deserializeData {
   }
   simpleString(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
+    if(buffer.toString().substring(1, crlfPos).indexOf('\n') !== -1) throw new Error("Invalid simple string")
     return { value: buffer.toString().substring(1, crlfPos), end: crlfPos + 2 };
   }
   integer(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
+    const numAsString = buffer.toString().substring(1, crlfPos)
     return {
-      value: parseInt(buffer.toString().substring(1, crlfPos)),
+      value:  numAsString.includes('.') ? parseFloat(numAsString) : parseInt(numAsString),
       end: crlfPos + 2,
     };
   }
   error(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
-    return { value: buffer.toString().substring(0, crlfPos), end: crlfPos + 2 };
+    return { value: buffer.toString().substring(1, crlfPos), end: crlfPos + 2 };
   }
   bulkStrings(buffer) {
     let crlfPos = buffer.indexOf(CRLF);
@@ -99,7 +101,7 @@ class deserializeData {
       arraySize--;
       buffer = buffer.slice(end);
     }
-    return { value: arr, end: crlfPos + 2 + buffer.length };
+    return { value: arr, end: buffer.length - 4};
   }
 }
 
