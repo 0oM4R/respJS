@@ -226,7 +226,10 @@ describe("Custom commands", ()=>{
   describe("test url command", ()=>{                         
     it("testing example.com", async ()=>{
       let buffered = Buffer.from("*2\r\n+testurl\r\n\$19\r\nhttps://example.com\r\n")
-      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , '+true\r\n')
+      Controller.commandsParser(DeserializeData.deserializer(buffered).value).then( reply =>{
+        assert.equal( value , '+true\r\n')
+      })
+     
     }),
     it("testing invalid url", async ()=>{
       let buffered = Buffer.from("*2\r\n+testurl\r\n\$17\r\nhtps://eample.com\r\n")
