@@ -154,7 +154,7 @@ describe("Deserialization", () => {
   });
   describe("Array", () => {
     it('Empty array, should return "*0\\r\\n"', () => {
-      assert.deepEqual(DeserializeData.array(Buffer.from("*0\r\n").value, ));
+      assert.deepEqual(DeserializeData.array(Buffer.from("*0\r\n")).value, []);
     });
     it("Hello world, as bulk string", () => {
       assert.deepEqual(
