@@ -8,6 +8,7 @@ const {
 const { ServerResponse } = require("http");
 const SerializeData = new serializeData();
 const DeserializeData = new deserializeData();
+const Controller = new controller();
 describe("Serialize data", () => {
   describe("String", () => {
     it("PONG", () => {
@@ -212,3 +213,29 @@ describe("Deserialization", () => {
     });
   });
 });
+describe("Custom commands", ()=>{
+  describe("myPing command", ()=>{
+    let buffered = Buffer.from("*1\r\n+myPing\r\n")
+    it("Sending myPing command",async ()=>{
+      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , '+PONG\r\n')
+    }),
+    it("sending invalid command", async ()=>{
+      let buffered = Buffer.from("*1\r\n+Ping\r\n")
+      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , '-invalid command\r\n')
+    })
+  });
+  describe("test url command", ()=>{                         
+    it("testing example.com", async ()=>{
+      let buffered = Buffer.from("*2\r\n+testurl\r\n\$19\r\nhttps://example.com\r\n")
+      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , '+true\r\n')
+    }),
+    it("testing invalid url", async ()=>{
+      let buffered = Buffer.from("*2\r\n+testurl\r\n\$17\r\nhtps://eample.com\r\n")
+      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , '+false\r\n')
+    }),
+    it("sending test url command without parameter",async ()=>{
+      let buffered = Buffer.from("*1\r\n+testurl\r\n")
+      assert.equal( await Controller.commandsParser(DeserializeData.deserializer(buffered).value) , "-please type the url, EX.'testurl https://google.com' \r\n")
+    })
+  })
+})
