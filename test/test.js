@@ -5,7 +5,6 @@ const {
   deserializeData,
   controller,
 } = require("../src/helpers");
-const { ServerResponse } = require("http");
 const SerializeData = new serializeData();
 const DeserializeData = new deserializeData();
 const Controller = new controller();
