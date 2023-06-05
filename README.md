@@ -1,5 +1,6 @@
 # respJS
 [![Tests](https://github.com/0oM4R/respJS/actions/workflows/test.yaml/badge.svg)](https://github.com/0oM4R/respJS/actions/workflows/test.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/0oM4R/respJS/badge.svg?branch=development_codeCoverage)](https://coveralls.io/github/0oM4R/respJS?branch=development_codeCoverage)
 
 ## Introduction
 
