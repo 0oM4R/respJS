@@ -1,4 +1,5 @@
 # respJS
+[![Tests](https://github.com/0oM4R/respJS/actions/workflows/test.yaml/badge.svg)](https://github.com/0oM4R/respJS/actions/workflows/test.yaml)
 
 ## Introduction
 
