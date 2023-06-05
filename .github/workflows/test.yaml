@@ -1,8 +1,7 @@
 name: Tests
 
 on:
-  push:
-    branches: [main]
+   push: {}
 
 
 jobs:
@@ -24,4 +23,9 @@ jobs:
       - name: Install
         run: yarn
       - name: test
-        run: yarn test
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        run: |
+          nyc --reporter=lcov --report-dir=./coverage mocha
+          yarn add -g coveralls
+          cat ./coverage/lcov.info | coveralls
