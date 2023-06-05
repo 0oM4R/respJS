@@ -27,5 +27,5 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           yarn nyc --reporter=lcov --report-dir=./coverage mocha
-          yarn add -g coveralls
+          yarn global add coveralls
           cat ./coverage/lcov.info | coveralls
