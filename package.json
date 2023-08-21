@@ -1,6 +1,6 @@
 {
   "name": "respJS",
-  "version": "1.0.0",
+  "version": "1.0.0-rc",
   "description": "javascrip RESP server with custom commands",
   "main": "./src/server.js",
   "repository": "git@github.com:0oM4R/respJS.git",
